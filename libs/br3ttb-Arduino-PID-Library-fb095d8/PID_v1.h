@@ -29,7 +29,7 @@ class PID
 										  //it's likely the user will want to change this depending on
 										  //the application
 	
-
+	void Reset();						  // Reset the integrator term to reset the PID computation
 
   //available but not commonly used functions ********************************************************
     void SetTunings(double, double,       // * While most users will set the tunings once in the 

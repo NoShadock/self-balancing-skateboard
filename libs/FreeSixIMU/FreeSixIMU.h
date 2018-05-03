@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FreeSixIMU_h
 #define FreeSixIMU_h
 
-
 #define FIMU_BMA180_DEF_ADDR BMA180_ADDRESS_SDO_LOW
 #define FIMU_ITG3200_DEF_ADDR ITG3200_ADDR_AD0_LOW // AD0 connected to GND
 // HMC5843 address is fixed so don't bother to define it

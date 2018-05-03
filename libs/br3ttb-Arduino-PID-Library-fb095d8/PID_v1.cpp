@@ -74,6 +74,13 @@ bool PID::Compute()
    else return false;
 }
 
+/* Reset()*********************************************************************
+ * Sometimes you just want to restart the PID computation, and get rid of past
+ * accumulation in the integrator term, this function does just that.
+ ******************************************************************************/ 
+void PID::Reset(){
+	ITerm = 0;
+}
 
 /* SetTunings(...)*************************************************************
  * This function allows the controller's dynamic performance to be adjusted. 
