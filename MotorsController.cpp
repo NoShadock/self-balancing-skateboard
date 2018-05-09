@@ -1,9 +1,8 @@
 #include "MotorsController.h"
 
-SoftwareSerial SWSerial(NOT_A_PIN, 11); // RX on no pin (unused), TX on pin 11 (to S1).
-Sabertooth ST(128, SWSerial); // Address 128, and use SWSerial as the serial port.
-
-MotorsController::MotorsController() {
+MotorsController::MotorsController(int pin) : SWSerial(NOT_A_PIN, pin), ST(128, SWSerial) {
+  //SWSerial: RX on no pin (unused), TX on given pin (to S1).
+  //Sabertooth: Address 128, and use SWSerial as the serial port.
 }
 
 void MotorsController::init() {
@@ -38,3 +37,7 @@ void MotorsController::go(int power, int radius) {
   current_power_motor_1 = power;
   current_power_motor_2 = power;
 }
+
+
+
+

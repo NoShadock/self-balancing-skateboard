@@ -7,8 +7,10 @@ class MotorsController
   private:
     int current_power_motor_1;
     int current_power_motor_2;
+    SoftwareSerial SWSerial;
+    Sabertooth ST;
   public:
-    MotorsController();
+    MotorsController(int motorPin);
     void init();
     void stop();
     void go(int power);
@@ -23,5 +25,9 @@ class MotorsController
       return (current_power_motor_1 | current_power_motor_2);
     }
 };
+
+
+
+
 
 

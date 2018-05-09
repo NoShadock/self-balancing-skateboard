@@ -1,6 +1,34 @@
-Ku 3
-Tu 0.45
+1. Ziegler-Nichols method
 
-Kp 1.8
-Ki 8
-Kd 0.1
+no load measure: Ku=3 - Tu=0.45
+loaded 83kg measure: Ku=4 - Tu=0.2
+
+PID classic
+formulas: double Kp = 0.6*Ku, Ki = 2*Kp/Tu, Kd = Kp*Tu/8;
+Ku=3 ; Tu=0.45 -> Kp=1.8 ; Ki=8 ; Kd=0.1
+
+Some overshoot
+formulas: double Kp = 0.33 * Ku, Ki = 2 * Kp / Tu, Kd = Kp * Tu / 3;
+
+No overshoot
+formulas: double Kp = 0.2 * Ku, Ki = 2 * Kp / Tu, Kd = Kp * Tu / 3;
+
+
+
+2. tuto vars
+
+double overallGain = 0.6, degRad = 0.017453, conv = overallGain * degRad * 127;
+double Kp = 4.5 * conv, Ki = 1.0 * conv, Kd = 0.5 * conv;
+
+
+
+3. manual method
+
+protocol:
+0- start with all coeff at 0
+1- up Kp until it oscillates violently
+2- up Kd to damper the oscillations
+3- loop steps 1 and 2 until an acceptable pair of values is found
+
+results:
+double Kp = 6.7, Ki = 0, Kd = 0.07;
