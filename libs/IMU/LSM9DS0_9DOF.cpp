@@ -144,10 +144,10 @@ float LSM9DS0_9DOF::getTilt() {
   // angles[2] = roll;
 
   switch(_axis){
-    case Axis::yaw : return yaw;
+    case Axis::yaw : return _validateTiltDirection(yaw);
     default:
-    case Axis::pitch : return pitch;
-    case Axis::roll : return roll;
+    case Axis::pitch : return _validateTiltDirection(pitch);
+    case Axis::roll : return _validateTiltDirection(roll);
   }
 }
 

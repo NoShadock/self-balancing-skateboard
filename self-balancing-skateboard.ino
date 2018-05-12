@@ -14,12 +14,12 @@
 #include <SoftwareSerial.h>
 #include <Sabertooth.h>
 #include <PID_v1.h>
-#include "src/motors/MotorsController.h"
+#include <MotorsController.h>
 
 // choose an IMU board
 // #include "Sparkfun6DOF.h"
 // IMUmanager imu = Sparkfun6DOF();
-#include "src/IMU/LSM9DS0_9DOF.h"
+#include <LSM9DS0_9DOF.h>
 LSM9DS0_9DOF myIMU = LSM9DS0_9DOF();
 
 
@@ -32,7 +32,7 @@ LSM9DS0_9DOF myIMU = LSM9DS0_9DOF();
 // DONT FORGET to correct Kd and Ki if you change this value
 const int period = 50;
 // tilt measure offset, because the IMU is not perfectly parallel to the board.
-const double tiltTrim = -7;
+const double tiltTrim = 7;
 // Safety lock; tilt in degrees
 const int safeTilt = 25;
 bool tiltLock = false;
@@ -46,7 +46,7 @@ unsigned long time1;
 MotorsController myMotors = MotorsController(motorPin);
 // Set the PID object
 double Setpoint, Input, Output;
-double Kp = 6.7, Ki = 0, Kd = 0.07;
+double Kp=1, Ki=0, Kd=0.07;
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 void setup() {
@@ -77,7 +77,11 @@ void setup() {
   // yaw=0 pitch=1 roll=2
   myIMU.setAxis(1);
   // Wait IMU stabilization
+  Serial.println("Wait IMU stabilization");
   for (i = 0; i < 500; i++) {
+    if(i%50==0){
+      Serial.println("Wait "+String(i/50)+"/10");
+    }
     myIMU.getTilt();
     delay(10);
   }
@@ -171,6 +175,7 @@ void   fancyLedBlink() {
     digitalWrite(13, ledhigh ? HIGH : LOW);
   }
 }
+
 
 
 

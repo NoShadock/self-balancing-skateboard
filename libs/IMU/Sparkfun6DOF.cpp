@@ -10,7 +10,7 @@ void Sparkfun6DOF::init() {
 
 float Sparkfun6DOF::getTilt() {
   dof.getYawPitchRoll(angles);
-  return angles[_axis];
+  return _validateTiltDirection(angles[_axis]);
 }
 
 
