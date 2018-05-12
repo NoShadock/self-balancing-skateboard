@@ -1,22 +1,34 @@
 #include "IMUmanager.h"
+#include <Arduino.h>
 
-IMUmanager::IMUmanager() {
-  sixDOF = FreeSixIMU();
-  ax = 1; //
-}
 
-void IMUmanager::init() {
-  sixDOF.init();
+IMUmanager::IMUmanager()
+{
+  _axis = Axis::pitch;
 }
 
 void IMUmanager::setAxis(char axis) {
-  ax = constrain(axis, 0, 2);
+  _axis = constrain(axis, 0, 2);
 }
 
-float IMUmanager::getTilt() {
-  sixDOF.getYawPitchRoll(angles);
-  return angles[ax];
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

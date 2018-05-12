@@ -1,18 +1,44 @@
-#include <FreeSixIMU.h>
+#include <Arduino.h>
+
 
 class IMUmanager
 {
-  private:
-    char ax;
-    FreeSixIMU sixDOF;
-    float angles[3]; // yaw pitch roll
-  
+  protected:
+    char _axis;
+    float angles[3] = {0.0f, 0.0f, 0.0f}; // yaw pitch roll
+
   public:
     IMUmanager();
-    void init();
     void setAxis(char axis);
-    float getTilt();
+    virtual void init();
+    virtual float getTilt();
 };
+
+enum Axis : char {
+	yaw = 0,
+	pitch = 1,
+	roll = 2
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
