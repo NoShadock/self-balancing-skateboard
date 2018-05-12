@@ -16,8 +16,8 @@
 #include <Wire.h>
 #include <FreeSixIMU.h>
 #include <PID_v1.h>
-#include "IMUmanager.h"
-#include "MotorsController.h"
+#include "src/IMUmanager.h"
+#include "src/MotorsController.h"
 
 
 #define ledPin 13
@@ -170,6 +170,7 @@ void   fancyLedBlink() {
     digitalWrite(13, ledhigh ? HIGH : LOW);
   }
 }
+
 
 
 
