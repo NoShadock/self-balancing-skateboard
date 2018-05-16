@@ -2,6 +2,9 @@
 #include <Sabertooth.h>
 #include <Arduino.h>
 
+# define POWER_MIN -127
+# define POWER_MAX 127
+
 class MotorsController
 {
   private:
@@ -13,6 +16,7 @@ class MotorsController
     MotorsController(int motorPin);
     void init();
     void stop();
+    void check();
     void go(int power);
     void go(int power, int radius);
     int getCurrentPowerMotor1() {

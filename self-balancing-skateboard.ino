@@ -15,13 +15,22 @@
 #include <Sabertooth.h>
 #include <PID_v1.h>
 #include <MotorsController.h>
+#include <TuningHandle.h>
 
 // choose an IMU board
 // #include "Sparkfun6DOF.h"
 // IMUmanager imu = Sparkfun6DOF();
+// bool direction=true;
+
 #include <LSM9DS0_9DOF.h>
 LSM9DS0_9DOF myIMU = LSM9DS0_9DOF();
+bool direction=false;
 
+#define switch1Pin 4
+#define switch2Pin 5
+#define buttonPin 2
+#define varioPin 0
+TuningHandle* handle = TuningHandle::createInstance(varioPin, buttonPin, 4.0, LOW);
 
 #define ledPin 13
 #define motorPin 11
@@ -32,7 +41,7 @@ LSM9DS0_9DOF myIMU = LSM9DS0_9DOF();
 // DONT FORGET to correct Kd and Ki if you change this value
 const int period = 50;
 // tilt measure offset, because the IMU is not perfectly parallel to the board.
-const double tiltTrim = 7;
+const double tiltTrim = 4;
 // Safety lock; tilt in degrees
 const int safeTilt = 25;
 bool tiltLock = false;
@@ -46,10 +55,13 @@ unsigned long time1;
 MotorsController myMotors = MotorsController(motorPin);
 // Set the PID object
 double Setpoint, Input, Output;
-double Kp=1, Ki=0, Kd=0.07;
+double Kp=0, Ki=0, Kd=0;
+double* params[3] = {&Kp, &Ki, &Kd};
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 void setup() {
+  pinMode(switch1Pin, INPUT);
+  pinMode(switch2Pin, INPUT);
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
 
@@ -70,12 +82,15 @@ void setup() {
   myPID.SetMode(AUTOMATIC);
 
   //begin the motor controller serial
+  Serial.println("Init motors controller.");
   myMotors.init();
+  Serial.println("Check motors control.");
+  myMotors.check();
 
   //begin the IMU
   myIMU.init();
   // yaw=0 pitch=1 roll=2
-  myIMU.setAxis(1);
+  myIMU.setAxis(1, direction);
   // Wait IMU stabilization
   Serial.println("Wait IMU stabilization");
   for (i = 0; i < 500; i++) {
@@ -85,6 +100,9 @@ void setup() {
     myIMU.getTilt();
     delay(10);
   }
+
+  // activate handle
+  handle->activate();
 
   // end signal
 #ifdef DEBUG
@@ -103,27 +121,18 @@ void loop() {
   // anti freeze visual check
   fancyLedBlink();
 
-  // Get measure of tilt (average for noise reduction)
-  Input = 0;
-  for (i = 0; i < measureAverageCount; i++) {
-    // SHOULD DO SOMETHING HERE to avoid freeze from Wire/twi.c lib
-    Input += myIMU.getTilt();
-  }
-  Input /= measureAverageCount;
-  Input += tiltTrim;
-
-  // Safety lock: check maximum tilt
-  if ((!tiltLock && (abs(Input) > safeTilt)) || (tiltLock && (abs(Input) < 1))) {
-    if (tiltLock) { // release tiltLock
-      myPID.Reset();
-    }
-    tiltLock = !tiltLock;
-  }
-
+  measureTilt();
+  checkSafety();
+  
   // Command
-  if (tiltLock) {
+  if (tiltLock || !handle->isOn()) {
+    Serial.print("lock >> ");
     myMotors.stop();
+    myPID.Reset();
   } else {
+    Serial.print("run >> ");
+    updateParam();
+    myPID.SetTunings(Kp, Ki, -Kd);
     myPID.Compute();
     myMotors.go((int)Output);
   }
@@ -167,7 +176,7 @@ void printDebug(){
 /**
    blink led to enable freeze block detection
 */
-void   fancyLedBlink() {
+void fancyLedBlink() {
   loopcount++;
   loopcount %= 10;
   if (loopcount == 0) {
@@ -176,8 +185,37 @@ void   fancyLedBlink() {
   }
 }
 
+void measureTilt(){
+  // Get measure of tilt (average for noise reduction)
+  Input = 0;
+  for (i = 0; i < measureAverageCount; i++) {
+    // SHOULD DO SOMETHING HERE to avoid freeze from Wire/twi.c lib
+    Input += myIMU.getTilt();
+  }
+  Input /= measureAverageCount;
+  Input += tiltTrim;
+}
 
+void checkSafety(){
+  // Safety lock: check maximum tilt
+  if (!tiltLock && (abs(Input) > safeTilt)) {
+    // engage lock
+    tiltLock = true;
+  } else if (tiltLock && (abs(Input) < 1)) {
+    // release lock
+    tiltLock = false;
+  }
+}
 
+int getSwitchState(){
+  int s = (digitalRead(switch1Pin) << 1) |
+            digitalRead(switch2Pin);
+  return constrain(s, 0, 2);
+}
 
+void updateParam(){
+  double* ptr = params[getSwitchState()];
+  *ptr = handle->getValue();
+}
 
 
